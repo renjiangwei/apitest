@@ -17,7 +17,7 @@ app.use(cookieSession({
   name: 'user',
   keys: ['key1', 'key2'],
   maxAge: 1000 * 60 * 30,
-  httpOnly:false
+  httpOnly:false //true的话cookie不能被vue-cookies获取
 }))
 app.use('/user',userRouter)//挂载在/user子路由下
 app.use('/', indexRouter)//挂载在/ 下
