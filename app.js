@@ -3,7 +3,8 @@ const app = express()
 const port = 3000
 const userRouter = require('./routes/user')
 const indexRouter = require('./routes/index')
-const cors = require('./util/cors')
+const depRouter = require('./routes/dep')
+const cors = require('./util/cors')//没用
 const bodyParser = require('body-parser')
 // app.use(express.json())
 app.use(bodyParser.urlencoded({extended:false}))//Qs
@@ -15,12 +16,14 @@ app.use(bodyParser.json())
 var cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'user',
-  keys: ['key1', 'key2'],
+  keys: ['key1'],
   maxAge: 1000 * 60 * 30,
   httpOnly:false //true的话cookie不能被vue-cookies获取
 }))
 app.use('/user',userRouter)//挂载在/user子路由下
 app.use('/', indexRouter)//挂载在/ 下
+app.use('/dep',depRouter)//挂载在/dep路由下
+
 
 // app.all('*', (req, res, next) => {//cors封装响应头设置 解决跨域问题
 //   cors.setHeader(req, res, next);

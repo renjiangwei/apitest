@@ -19,7 +19,7 @@ var getUsers = function (req, res) {//index路由查询所有用户（暂时留�
 }
 var getUsersById = function(req,res){//get请求请求体中特定id的用户
   var {id} = req.query;//解构出id
-  var sql = 'select * from stu where id = ?';
+  var sql = 'select * from stu where stu_id = ?';
   var sqlArr = [id];
   var callBack = function(err,data){
     if(err){
@@ -57,7 +57,7 @@ var login = function (req, res) {//post登录验证id和密码
   
   var id = req.body.id;
   var password = req.body.password;
-  var sql = 'select * from stu where id = ? and password = ?';
+  var sql = 'select * from stu where stu_id = ? and password = ?';
   var sqlArr = [id, password];
   var callBack = function (err, data) {
     if (err) {
@@ -93,7 +93,7 @@ var stuInfo = function (req, res) {//get请求学生信息
     return;
   }
   var id = req.query.id;
-  var sql = 'select * from stu_info where id = ?';
+  var sql = 'select * from stu_info where stu_id = ?';
   var sqlArr = [id];
   
   var callBack = function (err, data) {
@@ -116,7 +116,10 @@ var stuInfo = function (req, res) {//get请求学生信息
   }
   dbConfig.sqlConnect(sql, sqlArr, callBack);
 }
+
 var teaInfo = function (req, res) {//get请求教师信息
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header("Access-Control-Allow-Credentials", "true");//cookie跨域
   if (!req.session.id){
     res.send({
       code:400,
@@ -125,7 +128,7 @@ var teaInfo = function (req, res) {//get请求教师信息
     return;
   }
   var id = req.query.id;
-  var sql = 'select * from teacher_info where id = ?';
+  var sql = 'select * from teacher_info where teacher_id = ?';
   var sqlArr = [id];
   
   var callBack = function (err, data) {
