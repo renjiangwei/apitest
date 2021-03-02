@@ -4,6 +4,7 @@ const port = 3000
 const userRouter = require('./routes/user')
 const indexRouter = require('./routes/index')
 const depRouter = require('./routes/dep')
+const courseRouter = require('./routes/course')
 const cors = require('./util/cors')//没用
 const bodyParser = require('body-parser')
 // app.use(express.json())
@@ -23,7 +24,7 @@ app.use(cookieSession({
 app.use('/user',userRouter)//挂载在/user子路由下
 app.use('/', indexRouter)//挂载在/ 下
 app.use('/dep',depRouter)//挂载在/dep路由下
-
+app.use('/course',courseRouter)
 
 // app.all('*', (req, res, next) => {//cors封装响应头设置 解决跨域问题
 //   cors.setHeader(req, res, next);
@@ -67,4 +68,4 @@ app.get("/getInfo", (req, res) => {
 //   console.log('收到请求体：',req.body)
 //   res.status(201).send()
 // })
-app.listen(port, () => console.log(`Example app listening on port port!`))
+app.listen(port, () => console.log(`Example app listening on port ${port} !`))
