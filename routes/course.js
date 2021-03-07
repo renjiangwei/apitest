@@ -1,4 +1,3 @@
-const { request } = require('express');
 const express = require('express')
 var router = express.Router();
 var course = require('../controller/courseController')
@@ -9,4 +8,9 @@ router.get('/initcourse2',course.initCourse2)
 router.get('/courseclass',course.getCourseClass) //查询某课程id所授课班级 get   
 router.get('/coursebyid',course.getCourseById) // /course/coursebyid get传stuid 返回选课所有信息
 router.get('/teachercoursebyid',course.getCourseByIdTeacher)
+router.get('/courseinfobyid',course.getCourseInfoById)
+router.get('/sc',course.getSC)// get传学生id 查询选课表
+router.get('/tc',course.getTC)// get传教师id
+
+
 module.exports = router

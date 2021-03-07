@@ -31,7 +31,8 @@ var pool = mysql.createPool({
   port:'3306',
   user:'root',
   password:'123456',
-  database:'db1'
+  database:'db1',
+  dateStrings:true //数据库中时区正常，但node中时区为0时区，加上此行代码解决时区问题
 })
 var sqlConnect =  function (sql,sqlArr,callBack){
   pool.getConnection((err,conn)=>{

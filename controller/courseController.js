@@ -45,19 +45,19 @@ var getCourseClass = function (req, res) {//查询某课程上课的班级（难
       })
     } else {
       let i = 0
-      let result ={
+      let result = {
         'code': 200,
         'classes': []
       };
-      while(data[i]){
+      while (data[i]) {
         // console.log(data[i]);
         result['classes'][i] = {
-          'id':data[i].class_id,
-          'classname' : data[i].class_name
-        } 
+          'id': data[i].class_id,
+          'classname': data[i].class_name
+        }
         i++
       }
-      
+
       res.send(result)
     }
   }
@@ -285,11 +285,14 @@ var getCourseByIdTeacher = function (req, res) {//查询某人的选课 get 传s
   }
   dbConfig.sqlConnect(sql, sqlArr, callBack)
 }
-var getCourseInfoById = function (req, res) {//查询所有课程
+var getCourseInfoById = function (req, res) {
+  //查询课程 get传课程id，注意不是传学生或者教师id，只是根据课程id查询信息，结果唯一，
+  //基本信息和name
   res.header("Access-Control-Allow-Origin", "http://localhost:8080");
   res.header("Access-Control-Allow-Credentials", "true");
-  var sql = `SELECT *FROM course_info,course_class 
-  WHERE course_info.course_info_id = course_class.course_info_id`;
+  var sql = `SELECT *FROM course_info,course
+  WHERE course_info.scourse = course.course_id
+  AND course_info.course_info_id = ?`;
   let id = req.query.id
   var sqlArr = [id]
   var callBack = function (err, data) {
@@ -305,12 +308,112 @@ var getCourseInfoById = function (req, res) {//查询所有课程
         'msg': '没有课程信息'
       })
     } else {
-      res.send(data)
+      let i = 0
+      let course = {
+        "course_info_id": data[i].course_info_id,
+        "num": data[i].num,
+        "teacher_id": data[i].teacher_id,
+        "fday": data[i].fday,
+        "sday": data[i].sday,
+        "thday": data[i].thday,
+        "ftime": data[i].ftime,
+        "stime": data[i].stime,
+        "thtime": data[i].thtime,
+        "start": data[i].start,
+        "end": data[i].end,
+        "credit": data[i].credit,
+        "type": data[i].type,
+        "cname": data[i].cname
+      }
+      res.send({
+        "code": 200,
+        "lesson": course
+      })
     }
   }
   dbConfig.sqlConnect(sql, sqlArr, callBack)
 }
 
+
+var getSC = function (req, res) {//查询sc表，简单返回对应的课程id，用于权限检测
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  var sql = `SELECT *FROM sc
+  WHERE stu_id = ?`;
+  let id = req.query.id
+  var sqlArr = [id]
+  var callBack = function (err, data) {
+    if (err) {
+      console.log('连接出错');
+      res.send({
+        'code': 400,
+        'msg': '出错了'
+      })
+    } else if (data == '') {
+      res.send({
+        'code': 400,
+        'msg': '没有课程信息'
+      })
+    } else {
+      let i = 0
+      let list =[]
+      
+      while(data[i]){
+        let lesson = {
+          "course_info_id":data[i].course_info_id
+        }
+        list.push(lesson)
+        i++
+      }
+      res.send({
+        "code":200,
+        "lesson":list
+      })
+    }
+  }
+  dbConfig.sqlConnect(sql, sqlArr, callBack)
+}
+
+var getTC = function (req, res) {//查询tc表，简单返回对应的课程id，用于权限检测
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  var sql = `SELECT *FROM tc
+  WHERE teacher_id = ?`;
+  let id = req.query.id
+  var sqlArr = [id]
+  var callBack = function (err, data) {
+    if (err) {
+      console.log('连接出错');
+      res.send({
+        'code': 400,
+        'msg': '出错了'
+      })
+    } else if (data == '') {
+      res.send({
+        'code': 400,
+        'msg': '没有课程信息'
+      })
+    } else {
+      let i = 0
+      let list =[]
+      
+      while(data[i]){
+        let lesson = {
+          "course_info_id":data[i].course_info_id
+        }
+        list.push(lesson)
+        i++
+      }
+      res.send({
+        "code":200,
+        "lesson":list
+      })
+    }
+  }
+  dbConfig.sqlConnect(sql, sqlArr, callBack)
+}
 module.exports = {
   getCourseInfo,
   getCourseClass,
@@ -318,4 +421,7 @@ module.exports = {
   initCourse2,
   getCourseById,
   getCourseByIdTeacher,
+  getCourseInfoById,
+  getSC,
+  getTC
 }
