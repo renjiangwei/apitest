@@ -28,7 +28,6 @@ var login = function (req, res) {//post登录验证id和密码
   // res.header('Content-Type',"text/plain;charset=utf-8")
   // res.header('Content-Type',"application/json")
   res.header("Access-Control-Allow-Credentials", "true");//cookie
-  
   var id = req.body.id;
   var password = req.body.password;
   var sql = 'select * from stu where stu_id = ? and password = ?';

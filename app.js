@@ -7,11 +7,12 @@ const depRouter = require('./routes/dep')
 const courseRouter = require('./routes/course')
 const noticeRouter = require('./routes/notice')
 const homeworkRouter = require('./routes/homework')
+const questionRouter = require('./routes/question')
 
 const cors = require('./util/cors')//没用
 const bodyParser = require('body-parser')
-// app.use(express.json())
-app.use(bodyParser.urlencoded({extended:false}))//Qs
+// app.use(express.json()) 
+app.use(bodyParser.urlencoded({extended:true}))
 app.use(bodyParser.json())
 
 
@@ -30,6 +31,8 @@ app.use('/dep',depRouter)//挂载在/dep路由下
 app.use('/course',courseRouter)
 app.use('/notice',noticeRouter)
 app.use('/homework',homeworkRouter)
+app.use('/question',questionRouter)
+
 
 // app.all('*', (req, res, next) => {//cors封装响应头设置 解决跨域问题
 //   cors.setHeader(req, res, next);

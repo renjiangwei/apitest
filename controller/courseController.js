@@ -201,7 +201,6 @@ var getCourseById = function (req, res) {//查询某人的选课 get 传stuid得
         'code': 200,
         'lesson': []
       }
-
       while (data[i]) {
         // console.log(data[i]);
         result['lesson'][i] = {
@@ -219,6 +218,7 @@ var getCourseById = function (req, res) {//查询某人的选课 get 传stuid得
           "credit": data[i].credit,
           "type": data[i].type,
           "tname": data[i].name,
+          "course_grade":data[i].course_grade
           // "classes": []
         }
         i++
@@ -414,6 +414,123 @@ var getTC = function (req, res) {//查询tc表，简单返回对应的课程id�
   }
   dbConfig.sqlConnect(sql, sqlArr, callBack)
 }
+
+// INSERT INTO sc (stu_id,course_info_id)
+// VALUES ("1151250216","2")
+// DELETE FROM sc 
+// WHERE stu_id = 1151250216
+// AND course_info_id   = 2
+
+var addStudent = function (req, res) {//教师给该课程添加学生，修改sc表
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('X-Powered-By', '3.2.1');
+  res.header("Access-Control-Allow-Credentials", "true");//cookie
+  
+  let stu_id = req.body.stu_id
+  let course_id = req.body.course_id
+  var sql = `
+  INSERT INTO sc (stu_id,course_info_id)
+  VALUES (?,?)
+  `
+  var sqlArr = [
+    stu_id,
+    course_id
+  ]
+  var callBack = function (err, data) {
+    if (err) {
+      console.log('连接出错');
+      res.send({
+        'code': 400,
+        'msg': '出错了'
+      })
+    } else {
+      res.send({
+        'code': 200,
+        'msg': "修改成功"
+      })
+    }
+  }
+  dbConfig.sqlConnect(sql, sqlArr, callBack);
+}
+
+var deleteStudent = function (req, res) {//教师给该课程删除学生，修改sc表
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('X-Powered-By', '3.2.1');
+  res.header("Access-Control-Allow-Credentials", "true");//cookie
+  
+  let stu_id = req.body.stu_id
+  let course_id = req.body.course_id
+  var sql = `
+  DELETE FROM sc 
+  WHERE stu_id = ?
+  AND course_info_id = ?
+  `
+  var sqlArr = [
+    stu_id,
+    course_id
+  ]
+  var callBack = function (err, data) {
+    if (err) {
+      console.log('连接出错');
+      res.send({
+        'code': 400,
+        'msg': '出错了'
+      })
+    } else {
+      res.send({
+        'code': 200,
+        'msg': "修改成功"
+      })
+    }
+  }
+  dbConfig.sqlConnect(sql, sqlArr, callBack);
+}
+
+var getCourseStudentList = function (req, res) {//查询sc表，返回该课程的所有学生
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  var sql = `SELECT sc.stu_id, stu_info.name
+  FROM sc,stu_info
+  WHERE sc.stu_id = stu_info.stu_id
+  AND course_info_id = ?
+  `;
+  console.log(req.query.course_id);
+  let course_id = req.query.course_id
+  var sqlArr = [course_id]
+  var callBack = function (err, data) {
+    if (err) {
+      console.log('连接出错');
+      res.send({
+        'code': 400,
+        'msg': '出错了'
+      })
+    } else if (data == '') {
+      res.send({
+        'code': 404,
+        'msg': '没有选课信息'
+      })
+    } else {
+      let list = []
+      let i = 0
+      // while(data[i]){
+
+      //   i++
+      // }
+      res.send({
+        "code":200,
+        "student":data
+      })
+    }
+  }
+  dbConfig.sqlConnect(sql, sqlArr, callBack)
+}
 module.exports = {
   getCourseInfo,
   getCourseClass,
@@ -422,6 +539,9 @@ module.exports = {
   getCourseById,
   getCourseByIdTeacher,
   getCourseInfoById,
+  addStudent,
+  deleteStudent,
   getSC,
-  getTC
+  getTC,
+  getCourseStudentList
 }
