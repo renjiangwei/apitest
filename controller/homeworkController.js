@@ -1,4 +1,6 @@
 var dbConfig = require('../util/dbconfig')
+var log4js = require('../util/log4js')
+var logger = log4js.getLogger()
 const fs = require('fs')
 const moment = require('moment');
 
@@ -70,6 +72,7 @@ var uploadHomework = function (req, res) {//教师上传作业
     } else {
       // req.session.id = id;
       // res.send(data)
+      logger.info("教师" + teacherid + "上传作业" + "文件为：" + JSON.stringify(filePaths))
       res.send({
         'code': 200,
         'msg': "上传成功"
@@ -134,6 +137,7 @@ var stuUploadHomework = function (req, res) {//学生提交作业
     } else {
       // req.session.id = id;
       // res.send(data)
+      logger.info("学生" + stu_homework_stu_id + "上传作业" + "文件为：" + JSON.stringify(filePaths))
       res.send({
         'code': 200,
         'msg': "上传成功"
@@ -180,6 +184,7 @@ var uploadGrade = function (req, res) {//教师提交作业分数
         'msg': '数据不存在'
       })
     } else {
+      logger.info(stu_homework_stu_id + "学生的作业" + homework_id + "被教师评分")
       res.send({
         'code': 200,
         'msg': "上传成功"
@@ -249,7 +254,7 @@ var getHomeworkDetail = function (req, res) {//根据作业id，学生id查询�
   WHERE stu_homework_id = ?
   AND stu_homework_stu_id = ?
   `
-  var sqlArr = [homework_id,stu_id]
+  var sqlArr = [homework_id, stu_id]
   var callBack = function (err, data) {
     if (err) {
       console.log('连接出错');
@@ -264,12 +269,12 @@ var getHomeworkDetail = function (req, res) {//根据作业id，学生id查询�
       })
     } else {
       let result = {
-        homework_id : data[0].stu_homework_id,
-        homework_content : data[0].stu_homework_content,
-        homework_create_time : data[0].stu_homework_create_time,
-        homework_grade : data[0].stu_homework_grade,
-        homework_comment :  data[0].stu_homework_comment,
-        homework_file_path : JSON.parse(data[0].stu_homework_file_path)
+        homework_id: data[0].stu_homework_id,
+        homework_content: data[0].stu_homework_content,
+        homework_create_time: data[0].stu_homework_create_time,
+        homework_grade: data[0].stu_homework_grade,
+        homework_comment: data[0].stu_homework_comment,
+        homework_file_path: JSON.parse(data[0].stu_homework_file_path)
       }
       res.send({
         "code": 200,
@@ -285,7 +290,7 @@ var getHomeworkDetailById = function (req, res) {
   //根据作业id，查询所有学生该作业内容打分评价
   res.header("Access-Control-Allow-Origin", "http://localhost:8080");
   res.header("Access-Control-Allow-Credentials", "true");//cookie
-  var homework_id = req.query.homework_id//参数为课程id 查询该课的作业
+  var homework_id = req.query.homework_id//参数为作业id
   var sql = `
   SELECT *FROM stu_homework,stu_info
   WHERE stu_homework.stu_homework_stu_id = stu_info.stu_id
@@ -307,21 +312,21 @@ var getHomeworkDetailById = function (req, res) {
     } else {
       let a = []
       let i = 0
-      
-      while(data[i]){
+
+      while (data[i]) {
         let result = {
-          homework_id : data[i].stu_homework_id,
-          homework_content : data[i].stu_homework_content,
-          homework_create_time : data[i].stu_homework_create_time,
-          homework_grade : data[i].stu_homework_grade,
-          homework_comment :  data[i].stu_homework_comment,
-          homework_file_path : JSON.parse(data[i].stu_homework_file_path),
-          stu_homework_stu_id : data[i].stu_homework_stu_id,
-          stu_name : data[i].name
+          homework_id: data[i].stu_homework_id,
+          homework_content: data[i].stu_homework_content,
+          homework_create_time: data[i].stu_homework_create_time,
+          homework_grade: data[i].stu_homework_grade,
+          homework_comment: data[i].stu_homework_comment,
+          homework_file_path: JSON.parse(data[i].stu_homework_file_path),
+          stu_homework_stu_id: data[i].stu_homework_stu_id,
+          stu_name: data[i].name
         }
         a.push(result)
         i++
-      }  
+      }
       res.send({
         "code": 200,
         "data": a
@@ -332,6 +337,111 @@ var getHomeworkDetailById = function (req, res) {
   dbConfig.sqlConnect(sql, sqlArr, callBack);
 }
 
+var getCourseStuAllhomework = function (req, res) {//学生查询该课程自己的所有作业
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header("Access-Control-Allow-Credentials", "true");//cookie
+  var stu_id = req.query.stu_id//学生id
+  var scourse = req.query.scourse//课程id
+  var sql = `
+  SELECT * FROM homework ,stu_homework
+  WHERE homework.homework_id = stu_homework.stu_homework_id
+  AND stu_homework.stu_homework_stu_id = ?
+  AND scourse = ?
+  `
+  var sqlArr = [stu_id,scourse]
+  var callBack = function (err, data) {
+    if (err) {
+      console.log('连接出错');
+      res.send({
+        'code': 400,
+        'msg': '出错了'
+      })
+    } else if (data == '') {
+      res.send({
+        'code': 404,
+        'msg': '没有提交作业'
+      })
+    } else {
+      let a = []
+      let i = 0
+      while (data[i]) {
+        let result = {
+          homework_id: data[i].homework_id,
+          homework_content: data[i].content,
+          homework_file_path: JSON.parse(data[i].file_path),
+          create_time:data[i].create_time,
+          stu_homework_content:data[i].stu_homework_content,
+          stu_homework_file_path:data[i].stu_homework_file_path,
+          stu_homework_create_time:data[i].stu_homework_create_time,
+          stu_homework_grade: data[i].stu_homework_grade,
+          stu_homework_comment: data[i].stu_homework_comment,
+          stu_homework_file_path: JSON.parse(data[i].stu_homework_file_path),
+        }
+        a.push(result)
+        i++
+      }
+      // console.log(data);
+      res.send({
+        "code": 200,
+        "data": a
+      })
+    }
+  }
+  dbConfig.sqlConnect(sql, sqlArr, callBack);
+}
+
+var getAllStuHomework = function (req, res) {//教师查询该课程该作业所有人提交的作业
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header("Access-Control-Allow-Credentials", "true");//cookie
+  var stu_id = req.query.stu_id//学生id
+  var scourse = req.query.scourse//课程id
+  var sql = `
+  SELECT * FROM homework ,stu_homework
+  WHERE homework.homework_id = stu_homework.stu_homework_id
+  AND stu_homework.stu_homework_stu_id = ?
+  AND scourse = ?
+  `
+  var sqlArr = [stu_id,scourse]
+  var callBack = function (err, data) {
+    if (err) {
+      console.log('连接出错');
+      res.send({
+        'code': 400,
+        'msg': '出错了'
+      })
+    } else if (data == '') {
+      res.send({
+        'code': 404,
+        'msg': '没有提交作业'
+      })
+    } else {
+      let a = []
+      let i = 0
+      while (data[i]) {
+        let result = {
+          homework_id: data[i].homework_id,
+          homework_content: data[i].content,
+          homework_file_path: JSON.parse(data[i].file_path),
+          create_time:data[i].create_time,
+          stu_homework_content:data[i].stu_homework_content,
+          stu_homework_file_path:data[i].stu_homework_file_path,
+          stu_homework_create_time:data[i].stu_homework_create_time,
+          stu_homework_grade: data[i].stu_homework_grade,
+          stu_homework_comment: data[i].stu_homework_comment,
+          stu_homework_file_path: JSON.parse(data[i].stu_homework_file_path),
+        }
+        a.push(result)
+        i++
+      }
+      // console.log(data);
+      res.send({
+        "code": 200,
+        "data": a
+      })
+    }
+  }
+  dbConfig.sqlConnect(sql, sqlArr, callBack);
+}
 var downHomework = function (req, res) {
   res.header("Access-Control-Allow-Origin", "http://localhost:8080");
   res.header("Access-Control-Allow-Credentials", "true");//cookie
@@ -383,6 +493,7 @@ var deleteHomework = function (req, res) {
       fs.unlinkSync(pathes[i])
       i++
     }
+    logger.warn("作业" + id + "被删除");
     res.send({
       "code": 200,
       "msg": "删除成功"
@@ -401,6 +512,7 @@ module.exports = {
   getHomework,
   getHomeworkDetail,
   getHomeworkDetailById,
+  getCourseStuAllhomework,
   downHomework,
   deleteHomework,
   uploadGrade,

@@ -1,4 +1,7 @@
 var dbConfig = require('../util/dbconfig')
+var log4js= require('../util/log4js')
+let logger = log4js.getLogger();
+// logger.info("info")
 var getUsers = function (req, res) {//index路由查询所有用户（暂时留着）
   res.header("Access-Control-Allow-Origin", "*");
   // res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
@@ -18,16 +21,18 @@ var getUsers = function (req, res) {//index路由查询所有用户（暂时留�
 
 }
 
-
+//注意这里登录的一些设置，后面的方法可能也需要一些修改
 var login = function (req, res) {//post登录验证id和密码
-  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
-  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.header('X-Powered-By', '3.2.1');
+  // res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  // res.header("Access-Control-Allow-Origin", "*");
+
+  // res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+  // res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  // res.header('Access-Control-Allow-Headers', 'Content-Type');
+  // res.header('X-Powered-By', '3.2.1');
   // res.header('Content-Type',"text/plain;charset=utf-8")
   // res.header('Content-Type',"application/json")
-  res.header("Access-Control-Allow-Credentials", "true");//cookie
+  // res.header("Access-Control-Allow-Credentials", "true");//cookie
   var id = req.body.id;
   var password = req.body.password;
   var sql = 'select * from stu where stu_id = ? and password = ?';
@@ -45,7 +50,8 @@ var login = function (req, res) {//post登录验证id和密码
         'msg': '用户名或密码出错'
       })
     } else {
-      req.session.id = id;
+      // req.session.id = id;
+      logger.info("学生"+id+"登录");
       res.send({
         'code': 200,
         'msg': '登录成功',
@@ -57,14 +63,14 @@ var login = function (req, res) {//post登录验证id和密码
 }
 
 var teacherLogin = function (req, res) {//post登录验证id和密码
-  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
-  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.header('X-Powered-By', '3.2.1');
-  // res.header('Content-Type',"text/plain;charset=utf-8")
-  // res.header('Content-Type',"application/json")
-  res.header("Access-Control-Allow-Credentials", "true");//cookie
+  // res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  // res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+  // res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  // res.header('Access-Control-Allow-Headers', 'Content-Type');
+  // res.header('X-Powered-By', '3.2.1');
+  // // res.header('Content-Type',"text/plain;charset=utf-8")
+  // // res.header('Content-Type',"application/json")
+  // res.header("Access-Control-Allow-Credentials", "true");//cookie
 
   var id = req.body.id;
   var password = req.body.password;
@@ -83,7 +89,8 @@ var teacherLogin = function (req, res) {//post登录验证id和密码
         'msg': '用户名或密码出错'
       })
     } else {
-      req.session.id = id;
+      // req.session.id = id;
+      logger.info("教师"+id+"登录");
       res.send({
         'code': 200,
         'msg': '登录成功',
@@ -94,8 +101,8 @@ var teacherLogin = function (req, res) {//post登录验证id和密码
   dbConfig.sqlConnect(sql, sqlArr, callBack);
 }
 var stuInfo = function (req, res) {//get请求学生信息
-  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
-  res.header("Access-Control-Allow-Credentials", "true");//cookie跨域
+  // res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  // res.header("Access-Control-Allow-Credentials", "true");//cookie跨域
   // if (!req.session.id){
   //   res.send({
   //     code:400,
@@ -103,6 +110,7 @@ var stuInfo = function (req, res) {//get请求学生信息
   //   });
   //   return;
   // }
+
   var id = req.query.id;
   var sql = `select stu_id,name,age,class_name,phone,email,sex,mname,department
   from stu_info,class ,major ,dep
@@ -121,24 +129,24 @@ var stuInfo = function (req, res) {//get请求学生信息
       })
     } else if (data == '') {
       res.send({
-        'code': 400,
+        'code': 404,
         'msg': '学生不存在'
       })
     } else {
       // req.session.id = id;
       // res.send(data)
       let result = {
-        'code' :200,
-        'data' :{
-          id:data[0].stu_id,
-          name:data[0].name,
-          age:data[0].age,
-          class:data[0].class_name,
-          phone:data[0].phone,
-          email:data[0].email,
-          sex:data[0].sex,
-          mname:data[0].mname,
-          dep:data[0].department,
+        'code': 200,
+        'data': {
+          id: data[0].stu_id,
+          name: data[0].name,
+          age: data[0].age,
+          class: data[0].class_name,
+          phone: data[0].phone,
+          email: data[0].email,
+          sex: data[0].sex,
+          mname: data[0].mname,
+          dep: data[0].department,
 
         }
       }
@@ -150,8 +158,8 @@ var stuInfo = function (req, res) {//get请求学生信息
 }
 
 var teaInfo = function (req, res) {//get请求教师信息
-  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
-  res.header("Access-Control-Allow-Credentials", "true");//cookie跨域
+  // res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  // res.header("Access-Control-Allow-Credentials", "true");//cookie跨域
   // if (!req.session.id){
   //   res.send({
   //     code:400,
@@ -182,15 +190,15 @@ var teaInfo = function (req, res) {//get请求教师信息
       // req.session.id = id;
       // res.send(data)
       let result = {
-        'code' :200,
-        'data' :{
-          id:data[0].teacher_info_id,
-          name:data[0].name,
-          age:data[0].age,
-          phone:data[0].phone,
-          email:data[0].email,
-          sex:data[0].sex,
-          dep:data[0].department
+        'code': 200,
+        'data': {
+          id: data[0].teacher_info_id,
+          name: data[0].name,
+          age: data[0].age,
+          phone: data[0].phone,
+          email: data[0].email,
+          sex: data[0].sex,
+          dep: data[0].department
         }
       }
       res.send(result)
@@ -199,10 +207,67 @@ var teaInfo = function (req, res) {//get请求教师信息
   }
   dbConfig.sqlConnect(sql, sqlArr, callBack);
 }
+var updateStuInfo = function (req, res) {//修改学生信息
+  var id = req.body.id;
+  var name = req.body.name;
+  var age = req.body.age;
+  var phone = req.body.phone;
+  var email = req.body.email;
+
+  var sql = 'update stu_info set name = ?, age = ?, phone = ?, email = ? where stu_id = ?';
+  var sqlArr = [name, age, phone, email, id];
+  var callBack = function (err, data) {
+    if (err) {
+      console.log('连接出错');
+      res.send({
+        'code': 400,
+        'msg': '出错了'
+      })
+    } else  {
+      logger.info("学生"+id+"修改信息");
+      res.send({
+        'code': 200,
+        'msg': '修改成功',
+      })
+    }
+
+  }
+  dbConfig.sqlConnect(sql, sqlArr, callBack);
+}
+var updateTeaInfo = function (req, res) {//修改教师信息
+  var id = req.body.id;
+  var name = req.body.name;
+  var age = req.body.age;
+  var phone = req.body.phone;
+  var email = req.body.email;
+  var sql = 'update teacher_info set name = ?, age = ?, phone = ?, email = ? where teacher_info_id = ?';
+  var sqlArr = [name, age, phone, email, id];
+  var callBack = function (err, data) {
+    if (err) {
+      console.log('连接出错');
+      res.send({
+        'code': 400,
+        'msg': '出错了'
+      })
+    } else  {
+      logger.info("教师"+id+"修改信息");
+      res.send({
+        'code': 200,
+        'msg': '修改成功',
+      })
+    }
+
+  }
+  dbConfig.sqlConnect(sql, sqlArr, callBack);
+}
+
 module.exports = {
   getUsers,
   login,
   teacherLogin,
   stuInfo,
-  teaInfo
+  teaInfo,
+  updateStuInfo,
+  updateTeaInfo,
+
 }

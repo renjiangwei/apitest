@@ -10,6 +10,11 @@ router.post('/teacherLogin',user.teacherLogin);
 router.get('/stuInfo',user.stuInfo);
 // /user/teaInfo 获取教师信息，get方法传入id
 router.get('/teaInfo',user.teaInfo);
+
+router.post('/updatestuinfo',user.updateStuInfo);
+router.post('/updateteainfo',user.updateTeaInfo);
+
+
 // router.get('/',(req,res) => {
 //   res.send('helloworld')
 // })

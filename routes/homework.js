@@ -17,6 +17,7 @@ router.get('/gethomework', homework.getHomework)//获取作业列表
 router.get('/gethomeworkdetail', homework.getHomeworkDetail)//获取学生id的作业id的内容
 router.get('/gethomeworkdetailbyid', homework.getHomeworkDetailById)
 //获取作业id的所有人提交的作业
+router.get('/getcoursestuallhomework', homework.getCourseStuAllhomework)//学生查看该课程自己的所有作业
 router.get('/downloadhomework', homework.downHomework)//下载作业对应的课件
 router.post('/deletehomework', homework.deleteHomework)//删除作业
 

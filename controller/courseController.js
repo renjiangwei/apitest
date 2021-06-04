@@ -1,4 +1,6 @@
 var dbConfig = require('../util/dbconfig')
+var log4js = require("../util/log4js")
+var logger = log4js.getLogger();
 var getCourseInfo = function (req, res) {//查询所有课程
   res.header("Access-Control-Allow-Origin", "http://localhost:8080");
   var sql = `SELECT *FROM course_info,course_class 
@@ -129,7 +131,7 @@ var initCourse = function (req, res) {//初始化选课表
       })
     } else if (data == '') {
       res.send({
-        'code': 400,
+        'code': 404,
         'msg': '没有信息'
       })
     } else {
@@ -159,7 +161,7 @@ var initCourse2 = function (req, res) {//初始化授课表
       })
     } else if (data == '') {
       res.send({
-        'code': 400,
+        'code': 404,
         'msg': '没有信息'
       })
     } else {
@@ -192,7 +194,7 @@ var getCourseById = function (req, res) {//查询某人的选课 get 传stuid得
       })
     } else if (data == '') {
       res.send({
-        'code': 400,
+        'code': 404,
         'msg': '没有信息'
       })
     } else {
@@ -218,7 +220,8 @@ var getCourseById = function (req, res) {//查询某人的选课 get 传stuid得
           "credit": data[i].credit,
           "type": data[i].type,
           "tname": data[i].name,
-          "course_grade":data[i].course_grade
+          "course_grade":data[i].course_grade,
+          "course_address": data[i].course_address,
           // "classes": []
         }
         i++
@@ -249,7 +252,7 @@ var getCourseByIdTeacher = function (req, res) {//查询某人的选课 get 传s
       })
     } else if (data == '') {
       res.send({
-        'code': 400,
+        'code': 404,
         'msg': '没有信息'
       })
     } else {
@@ -276,6 +279,7 @@ var getCourseByIdTeacher = function (req, res) {//查询某人的选课 get 传s
           "credit": data[i].credit,
           "type": data[i].type,
           "tname": data[i].name,
+          "course_address": data[i].course_address,
           // "classes": []
         }
         i++
@@ -304,7 +308,7 @@ var getCourseInfoById = function (req, res) {
       })
     } else if (data == '') {
       res.send({
-        'code': 400,
+        'code': 404,
         'msg': '没有课程信息'
       })
     } else {
@@ -323,7 +327,8 @@ var getCourseInfoById = function (req, res) {
         "end": data[i].end,
         "credit": data[i].credit,
         "type": data[i].type,
-        "cname": data[i].cname
+        "cname": data[i].cname,
+        "course_address": data[i].course_address,
       }
       res.send({
         "code": 200,
@@ -447,6 +452,7 @@ var addStudent = function (req, res) {//教师给该课程添加学生，修改s
         'msg': '出错了'
       })
     } else {
+      logger.info(course_id+"课程添加了学生"+stu_id)
       res.send({
         'code': 200,
         'msg': "修改成功"
@@ -483,6 +489,7 @@ var deleteStudent = function (req, res) {//教师给该课程删除学生，修�
         'msg': '出错了'
       })
     } else {
+      logger.warn(course_id+"课程移除了学生"+stu_id)
       res.send({
         'code': 200,
         'msg': "修改成功"
@@ -496,9 +503,10 @@ var getCourseStudentList = function (req, res) {//查询sc表，返回该课程�
   res.header("Access-Control-Allow-Origin", "http://localhost:8080");
   res.header("Access-Control-Allow-Credentials", "true");
 
-  var sql = `SELECT sc.stu_id, stu_info.name
-  FROM sc,stu_info
+  var sql = `SELECT sc.stu_id, stu_info.name,class.class_name
+  FROM sc,stu_info,class
   WHERE sc.stu_id = stu_info.stu_id
+  AND stu_info.class_id = class.class_id
   AND course_info_id = ?
   `;
   console.log(req.query.course_id);
@@ -531,6 +539,8 @@ var getCourseStudentList = function (req, res) {//查询sc表，返回该课程�
   }
   dbConfig.sqlConnect(sql, sqlArr, callBack)
 }
+
+
 module.exports = {
   getCourseInfo,
   getCourseClass,
@@ -543,5 +553,5 @@ module.exports = {
   deleteStudent,
   getSC,
   getTC,
-  getCourseStudentList
+  getCourseStudentList,
 }

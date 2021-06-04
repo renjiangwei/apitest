@@ -1,4 +1,6 @@
 var dbConfig = require('../util/dbconfig')
+var log4js = require('../util/log4js')
+var logger = log4js.getLogger()
 var getNotice = function (req, res) {//get请求课程的公告信息
   res.header("Access-Control-Allow-Origin", "http://localhost:8080");
   res.header("Access-Control-Allow-Credentials", "true");//cookie跨域
@@ -75,6 +77,7 @@ var deleteNotice = function (req, res) {//post删除公告
       })
     } else {
       // req.session.id = id;
+      logger.warn("删除"+id+"公告")
       res.send({
         'code': 200,
         'msg': '删除成功',
@@ -117,6 +120,7 @@ var addNotice = function (req, res) {//post添加公告
       })
     } else {
       // req.session.id = id;
+      logger.info(teacher_id+"添加了一条公告")
       res.send({
         'code': 200,
         'msg': '插入成功',

@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 const app = express()
 const port = 3000
 const userRouter = require('./routes/user')
@@ -8,12 +9,12 @@ const courseRouter = require('./routes/course')
 const noticeRouter = require('./routes/notice')
 const homeworkRouter = require('./routes/homework')
 const questionRouter = require('./routes/question')
-
-const cors = require('./util/cors')//没用
+const documentRouter = require('./routes/document')
 const bodyParser = require('body-parser')
 // app.use(express.json()) 
-app.use(bodyParser.urlencoded({extended:true}))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
+app.use(cors())//注意这个
 
 
 
@@ -23,16 +24,39 @@ app.use(cookieSession({
   name: 'user',
   keys: ['key1'],
   maxAge: 1000 * 60 * 30,
-  httpOnly:false //true的话cookie不能被vue-cookies获取
+  httpOnly: false //true的话cookie不能被vue-cookies获取
 }))
-app.use('/user',userRouter)//挂载在/user子路由下
+app.use('/user', userRouter)//挂载在/user子路由下
 app.use('/', indexRouter)//挂载在/ 下
-app.use('/dep',depRouter)//挂载在/dep路由下
-app.use('/course',courseRouter)
-app.use('/notice',noticeRouter)
-app.use('/homework',homeworkRouter)
-app.use('/question',questionRouter)
+app.use('/dep', depRouter)//挂载在/dep路由下
+app.use('/course', courseRouter)
+app.use('/notice', noticeRouter)
+app.use('/homework', homeworkRouter)
+app.use('/question', questionRouter)
+app.use('/document', documentRouter)
+// let log4js = require("log4js");
+// log4js.configure({
+//   appenders: {
+//     fileout: { type: "file", filename: "logs/fileout.log" },
+//     datafileout: {
+//       type: "dateFile",
+//       filename: "fileout.log",
+//       pattern: ".yyyy-MM-dd-hh-mm-ss-SSS"
+//     },
+//     consoleout: { type: "console" },
 
+//   },
+//   categories: {
+//     default: { appenders: ["fileout", "consoleout"], level: "debug" },
+//     anything: { appenders: ["consoleout"], level: "debug" }
+//   }
+// })
+// let logger = log4js.getLogger('default');
+// logger.debug("debug")
+// logger.info("info")
+// logger.warn("info")
+// logger.error("error")
+// logger.fatal("fatal")
 
 // app.all('*', (req, res, next) => {//cors封装响应头设置 解决跨域问题
 //   cors.setHeader(req, res, next);
